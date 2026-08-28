@@ -12,6 +12,7 @@ import {
   completeReleasedScreen,
   computerControlTimeoutMs,
   containerActionStep,
+  demuxDockerStream,
   ensureScreenCommand,
   hasValidBearerToken,
   interactiveScreenCommand,
@@ -471,5 +472,46 @@ describe("sandbox supervisor input containment", () => {
       activeWindow: { id: "99", title: "Browser" },
     });
     expect(() => parseObservation("GEOM 1280 800\nIMAGE ")).toThrow(/no image/);
+  });
+});
+
+describe("docker exec stream demux", () => {
+  const frame = (type: number, text: string) => {
+    const payload = Buffer.from(text, "utf8");
+    const header = Buffer.alloc(8);
+    header[0] = type;
+    header.writeUInt32BE(payload.length, 4);
+    return Buffer.concat([header, payload]);
+  };
+
+  it("keeps stderr frames out of stdout", () => {
+    const stream = Buffer.concat([
+      frame(1, "aGVsbG8="),
+      frame(2, "python: DeprecationWarning\n"),
+      frame(1, "\n"),
+    ]);
+    expect(demuxDockerStream(stream)).toEqual({
+      stdout: "aGVsbG8=\n",
+      stderr: "python: DeprecationWarning\n",
+    });
+  });
+
+  it("treats a raw tty stream as stdout", () => {
+    expect(demuxDockerStream(Buffer.from("plain output\n"))).toEqual({
+      stdout: "plain output\n",
+      stderr: "",
+    });
+    expect(demuxDockerStream(Buffer.alloc(0))).toEqual({ stdout: "", stderr: "" });
+  });
+
+  it("keeps the bytes that arrived when the stream is cut mid-frame", () => {
+    const cut = Buffer.concat([frame(1, "kept"), frame(2, "truncated stderr")]).subarray(
+      0,
+      12 + 8 + 6,
+    );
+    expect(demuxDockerStream(cut)).toEqual({ stdout: "kept", stderr: "trunca" });
+    // a dangling header shorter than 8 bytes is dropped, not misread
+    const dangling = Buffer.concat([frame(1, "ok"), Buffer.from([1, 0, 0])]);
+    expect(demuxDockerStream(dangling)).toEqual({ stdout: "ok", stderr: "" });
   });
 });

@@ -389,3 +389,30 @@ export function parseObservation(output: string) {
     ...(windowId ? { activeWindow: { id: windowId, ...(title ? { title } : {}) } } : {}),
   };
 }
+
+/**
+ * Split a Docker exec stream into stdout and stderr. Without a TTY the stream is
+ * multiplexed: each frame is an 8-byte header (type byte, 3 reserved bytes, big-endian
+ * length) followed by the payload, and type 2 is stderr. A raw (TTY) stream has no
+ * headers and is all stdout.
+ */
+export function demuxDockerStream(buffer: Buffer): { stdout: string; stderr: string } {
+  if (buffer.length < 8 || (buffer[0] ?? 99) > 2) {
+    return { stdout: buffer.toString("utf8"), stderr: "" };
+  }
+  const stdout: Buffer[] = [];
+  const stderr: Buffer[] = [];
+  let offset = 0;
+  while (offset + 8 <= buffer.length) {
+    const size = buffer.readUInt32BE(offset + 4);
+    // A frame that claims more bytes than remain means the stream was cut
+    // mid-frame; keep what actually arrived rather than skipping past the end.
+    const payload = buffer.subarray(offset + 8, Math.min(offset + 8 + size, buffer.length));
+    (buffer[offset] === 2 ? stderr : stdout).push(payload);
+    offset += 8 + size;
+  }
+  return {
+    stdout: Buffer.concat(stdout).toString("utf8"),
+    stderr: Buffer.concat(stderr).toString("utf8"),
+  };
+}
