@@ -25,7 +25,7 @@ Before making changes, ask me these concise questions:
    - Add a deployment-wide `OPENROUTER_API_KEY` to `.env`.
    - Connect during Rakazo onboarding with a provider API key or with ChatGPT Plus/Pro, GitHub Copilot, or SuperGrok / X Premium.
    - Defer model setup and verify infrastructure only. Make clear that bots cannot answer until a model is connected.
-3. Do I want remote computers now? If yes, choose E2B (`E2B_API_KEY`), Daytona (`DAYTONA_API_KEY`), or Box (`BOX_API_KEY`) and set `SANDBOX_PROVIDER` accordingly. If no, leave `SANDBOX_PROVIDER=none` (UI works; computers stay unavailable).
+3. Do I want remote computers instead of local Docker? If yes, choose E2B (`E2B_API_KEY`), Daytona (`DAYTONA_API_KEY`), or Box (`BOX_API_KEY`) and set `SANDBOX_PROVIDER` accordingly. If no, keep the default `SANDBOX_PROVIDER=docker` (local computers via the in-stack supervisor).
 
 Do not ask me to invent secrets; generate strong random values with openssl yourself.
 
@@ -40,17 +40,17 @@ Setup:
 2. Download only these two files (do not clone the repository):
    - https://raw.githubusercontent.com/elie222/rakazo/main/infra/compose/docker-compose.images.yml
    - https://raw.githubusercontent.com/elie222/rakazo/main/infra/compose/.env.images.example
-3. If `.env` does not exist, copy `.env.images.example` to `.env`. Fill the empty secret lines with openssl via sed (see comments in the example file), or equivalent: `POSTGRES_PASSWORD` (`rand -hex 16`), and `BETTER_AUTH_SECRET`, `ENCRYPTION_KEY`, and `SCREEN_PROXY_SECRET` (`rand -hex 32` each). Keep `SANDBOX_PROVIDER=none` unless I chose a remote computer provider. Add only the model key I selected.
+3. If `.env` does not exist, copy `.env.images.example` to `.env`. Fill the empty secret lines with openssl via sed (see comments in the example file), or equivalent: `POSTGRES_PASSWORD` (`rand -hex 16`), and `BETTER_AUTH_SECRET`, `ENCRYPTION_KEY`, `SCREEN_PROXY_SECRET`, and `SANDBOX_SUPERVISOR_TOKEN` (`rand -hex 32` each). Keep `SANDBOX_PROVIDER=docker` unless I chose a remote computer provider. Add only the model key I selected.
 4. Run:
    `docker compose --env-file .env -f docker-compose.images.yml pull`
    `docker compose --env-file .env -f docker-compose.images.yml up -d`
-5. Wait until api and web are healthy. Default image tag is `edge` (amd64). Do not pin `latest` unless that tag exists in GHCR.
+5. Wait until api, web, and supervisor are healthy. Default image tag is `edge` (amd64). Do not pin `latest` unless that tag exists in GHCR.
 
 Verification:
 
-- Request `http://127.0.0.1:3100/health`. Require `ok: true`. Expect `sandbox: "none"` unless a remote provider was configured.
+- Request `http://127.0.0.1:3100/health`. Require `ok: true`. Expect `sandbox: "docker"` unless a remote provider was configured (or Docker fell back to `none` because the supervisor token was missing).
 - Open `http://127.0.0.1:5173`, create a local test account with fake data, and complete first-run onboarding.
-- If a model is connected, send a harmless test message. If computers were deferred, report clearly that the UI works but Agent computer stays unavailable until a provider key is set.
+- If a model is connected, send a harmless test message. Open the Agent computer pane and confirm the Docker computer reaches `running` and renders its desktop.
 
 When finished, report the directory path, effective Docker/Compose versions, configured options without secrets, app URL, health result, and how to stop without deleting volumes (`docker compose … down` without `-v`).
 ```

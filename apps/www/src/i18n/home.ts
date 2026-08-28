@@ -236,11 +236,11 @@ const HOME_COPY: Record<Locale, HomeCopy> = {
     selfHost: {
       eyebrow: "Self-hosted",
       heading: "The computer is yours",
-      copy: "Run Rakazo on your machine with published images. Signup works without an E2B account; add a remote computer key when you need bots with desktops.",
+      copy: "Run Rakazo on your machine with published images. Local Docker computers work without an E2B account.",
       installTitle: "Install with Docker",
       installHint: "Docker Engine and the Compose plugin required. Default tag is edge (amd64).",
       computersNote:
-        "Computers stay unavailable until you set SANDBOX_PROVIDER to e2b, daytona, or box with the matching API key.",
+        "Default is Docker computers on this host. E2B, Daytona, and Box are optional remote providers.",
       features: [
         {
           title: "Any model, your key",
@@ -364,11 +364,11 @@ const HOME_COPY: Record<Locale, HomeCopy> = {
     selfHost: {
       eyebrow: "Self-hosted",
       heading: "Der Computer gehört dir",
-      copy: "Starte Rakazo mit veröffentlichten Images. Signup geht ohne E2B-Account; Remote-Computer-Key später hinzufügen.",
+      copy: "Starte Rakazo mit veröffentlichten Images. Lokale Docker-Computer laufen ohne E2B-Account.",
       installTitle: "Mit Docker installieren",
       installHint: "Docker Engine und Compose-Plugin nötig. Default-Tag ist edge (amd64).",
       computersNote:
-        "Computer bleiben aus, bis SANDBOX_PROVIDER auf e2b, daytona oder box steht und der passende API-Key gesetzt ist.",
+        "Standard sind Docker-Computer auf diesem Host. E2B, Daytona und Box sind optionale Remote-Anbieter.",
       features: [
         {
           title: "Beliebiges Modell, dein Key",
@@ -491,11 +491,11 @@ const HOME_COPY: Record<Locale, HomeCopy> = {
     selfHost: {
       eyebrow: "셀프 호스트",
       heading: "컴퓨터는 당신 것",
-      copy: "게시된 이미지로 Rakazo를 실행하세요. E2B 계정 없이 가입할 수 있고, 데스크톱이 필요할 때 원격 컴퓨터 키를 추가하면 됩니다.",
+      copy: "게시된 이미지로 Rakazo를 실행하세요. 로컬 Docker 컴퓨터는 E2B 계정 없이 동작합니다.",
       installTitle: "Docker로 설치",
       installHint: "Docker Engine과 Compose 플러그인이 필요합니다. 기본 태그는 edge(amd64)입니다.",
       computersNote:
-        "SANDBOX_PROVIDER를 e2b, daytona, box로 설정하고 해당 API 키를 넣을 때까지 컴퓨터는 사용할 수 없습니다.",
+        "기본값은 이 호스트의 Docker 컴퓨터입니다. E2B, Daytona, Box는 선택적 원격 제공자입니다.",
       features: [
         {
           title: "어떤 모델이든, 키는 당신 것",

@@ -1,10 +1,12 @@
-import { resolveDeploymentModel } from "@rakazo/adapters";
+import { resolveDeploymentModel, resolveSandboxProvider } from "@rakazo/adapters";
 import {
   resolveAuthSecret,
   resolveEncryptionKey,
   resolveScreenProxySecret,
   resolveSupervisorToken,
 } from "@rakazo/core";
+
+export { resolveSandboxProvider } from "@rakazo/adapters";
 
 export interface AppEnv {
   databaseUrl: string;
@@ -113,14 +115,4 @@ function required(source: NodeJS.ProcessEnv, key: string): string {
 function optional(value: string | undefined): string | undefined {
   const trimmed = value?.trim();
   return trimmed || undefined;
-}
-
-/** Empty or remote provider without a key becomes none so the API can boot for signup. */
-export function resolveSandboxProvider(source: NodeJS.ProcessEnv): string {
-  const requested = source.SANDBOX_PROVIDER?.trim() || "docker";
-  if (requested === "none") return "none";
-  if (requested === "e2b" && !optional(source.E2B_API_KEY)) return "none";
-  if (requested === "daytona" && !optional(source.DAYTONA_API_KEY)) return "none";
-  if (requested === "box" && !optional(source.BOX_API_KEY)) return "none";
-  return requested;
 }

@@ -54,13 +54,14 @@ sed -i \
   -e "s/^BETTER_AUTH_SECRET=$/BETTER_AUTH_SECRET=$(openssl rand -hex 32)/" \
   -e "s/^ENCRYPTION_KEY=$/ENCRYPTION_KEY=$(openssl rand -hex 32)/" \
   -e "s/^SCREEN_PROXY_SECRET=$/SCREEN_PROXY_SECRET=$(openssl rand -hex 32)/" \
+  -e "s/^SANDBOX_SUPERVISOR_TOKEN=$/SANDBOX_SUPERVISOR_TOKEN=$(openssl rand -hex 32)/" \
   .env
 docker compose --env-file .env -f docker-compose.images.yml up -d
 ```
 
 Open [http://127.0.0.1:5173](http://127.0.0.1:5173), create an account, and connect a model.
-Computers stay unavailable until you set `SANDBOX_PROVIDER` to `e2b`, `daytona`, or `box` with
-the matching API key.
+Local Docker computers are on by default. Optional remote providers: `e2b`, `daytona`, or `box`
+with the matching API key.
 
 Default image tag is `edge` (main builds, `linux/amd64`). Details and tags:
 [self-hosting guide](./docs/self-host.md#published-images-no-checkout).

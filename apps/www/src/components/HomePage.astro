@@ -176,6 +176,7 @@ sed -i \\
   -e "s/^BETTER_AUTH_SECRET=$/BETTER_AUTH_SECRET=$(openssl rand -hex 32)/" \\
   -e "s/^ENCRYPTION_KEY=$/ENCRYPTION_KEY=$(openssl rand -hex 32)/" \\
   -e "s/^SCREEN_PROXY_SECRET=$/SCREEN_PROXY_SECRET=$(openssl rand -hex 32)/" \\
+  -e "s/^SANDBOX_SUPERVISOR_TOKEN=$/SANDBOX_SUPERVISOR_TOKEN=$(openssl rand -hex 32)/" \\
   .env
 docker compose --env-file .env -f docker-compose.images.yml up -d`}</code></pre>
           <p class="selfhost-install__note">{copy.selfHost.computersNote}</p>

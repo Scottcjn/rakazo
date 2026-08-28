@@ -26,13 +26,15 @@ sed -i \
   -e "s/^BETTER_AUTH_SECRET=$/BETTER_AUTH_SECRET=$(openssl rand -hex 32)/" \
   -e "s/^ENCRYPTION_KEY=$/ENCRYPTION_KEY=$(openssl rand -hex 32)/" \
   -e "s/^SCREEN_PROXY_SECRET=$/SCREEN_PROXY_SECRET=$(openssl rand -hex 32)/" \
+  -e "s/^SANDBOX_SUPERVISOR_TOKEN=$/SANDBOX_SUPERVISOR_TOKEN=$(openssl rand -hex 32)/" \
   .env
 ```
 
-`SANDBOX_PROVIDER` defaults to `none`, so the API and web UI start without an E2B (or other)
-account. Signup works; computers stay unavailable until you set `SANDBOX_PROVIDER` to `e2b`,
-`daytona`, or `box` and add the matching API key. This Compose file has no Docker supervisor, so
-`SANDBOX_PROVIDER=docker` is not supported here (use the source Compose stack below for that).
+`SANDBOX_PROVIDER` defaults to `docker`. The images Compose file runs a sandbox supervisor
+(from the app image, on the internal network only) and pulls `ghcr.io/elie222/rakazo/computer`.
+Signup and local Docker computers work without an E2B account. Optional remote providers: set
+`SANDBOX_PROVIDER` to `e2b`, `daytona`, or `box` and add the matching API key. If Docker is not
+configured (`SANDBOX_SUPERVISOR_TOKEN` missing), the API falls back to `none` so the UI still boots.
 
 Optional: set `OPENROUTER_API_KEY` or connect a model in the UI after signup.
 
@@ -47,8 +49,9 @@ docker compose --env-file .env -f docker-compose.images.yml up -d
 
 Open [http://127.0.0.1:5173](http://127.0.0.1:5173). The first registered user becomes the
 deployment owner. Put TLS in front of `:5173` for a public host and set the three public origins to
-that HTTPS URL. For Docker sandboxes on the same machine, or automatic HTTPS via Caddy, use the
-Compose paths below (those still expect a checkout).
+that HTTPS URL. Open **Agent computer** on a bot, or send a message that uses the desktop, to see
+the local Docker computer. For automatic HTTPS via Caddy and remote E2B computers, use the
+production Compose path below.
 
 ## Docker Compose (single machine)
 
@@ -64,7 +67,11 @@ Compose runs Postgres, the sandbox supervisor (Docker socket), API, worker, and 
 
 Postgres is published on **loopback only** (`127.0.0.1:5433` on the host). Do not expose that port on a public VPS. Change `POSTGRES_PASSWORD` and keep Postgres on an internal network when you deploy remotely.
 
-The Docker supervisor is not published. It is authenticated and stays on the internal Compose network because access to it is equivalent to control of the Docker host. Docker sandboxes require `SANDBOX_SUPERVISOR_TOKEN` (API, worker, supervisor). `SCREEN_PROXY_SECRET` signs browser-screen capabilities (API and web proxy). Keep both distinct from `BETTER_AUTH_SECRET`.
+The Docker supervisor is not published as its own image and is not exposed on the host. It runs from
+the app image, stays on the internal Compose network, and holds the Docker socket because access to
+it is equivalent to control of the Docker host. Docker sandboxes require `SANDBOX_SUPERVISOR_TOKEN`
+(API, worker, supervisor). `SCREEN_PROXY_SECRET` signs browser-screen capabilities (API and web
+proxy). Keep both distinct from `BETTER_AUTH_SECRET`.
 
 New credentials use versioned AES-GCM with per-record salt and row-bound AAD. Legacy ciphertext stays readable.
 
@@ -124,14 +131,29 @@ Do not commit `.env`. Never put `COMPOSIO_API_KEY`, OpenRouter keys, or provider
 
 The Electron desktop app is a client of the same API. Docker and E2B still apply. On first launch, Electron asks the deployment owner whether bots should keep using Docker or run on this Mac as you. `SANDBOX_PROVIDER=desktop` is a separate, explicit provider that always runs commands on the service host.
 
-- **Published images** (`docker-compose.images.yml`) default to `SANDBOX_PROVIDER=none`. The UI boots without a computer host. Set `e2b`, `daytona`, or `box` plus the matching API key when you want computers. Docker is not available on that path (no supervisor in the images Compose file).
-- **Docker** is the default for a source checkout / full local Compose stack and the quickest self-hosted setup with computers on the same machine. Workspace bots share a persistent Team Computer by default; Private computers are optional. Keep the supervisor private, as the included Compose file does.
-- **E2B** runs bot computers away from the Rakazo host and is the recommended choice for public or multi-user production deployments. Rakazo checkpoints the portable workspace and browser-profile directory to `DATA_DIR`; the E2B disk is a runtime cache, not the durable source of truth.
-- **Daytona** provides the same remote-computer contract through Daytona sandboxes. Configure `DAYTONA_API_KEY` and optionally `DAYTONA_API_URL` / `DAYTONA_TARGET`.
-- **Box by ASCII** provides a managed Linux desktop through `BOX_API_KEY` and optionally `BOX_API_URL`. Rakazo always creates or resumes boxes with `noEnv: true`, keeps the portable workspace under `/home/user/rakazo-home`, and refreshes a two-hour TTL. A Box currently exposes one shared desktop, so concurrent Team bots can still use shell and files but only one can use graphical tools at a time.
-- **Desktop provider** / **This Mac** runs commands on the API/worker host. Docker stays the default for source checkouts. The Electron app asks once; if you choose This Mac, bots can use working directories under your home folder. Do not enable it on a public or shared service. macOS does not show its own permission dialog for this.
+- **Published images** (`docker-compose.images.yml`) default to `SANDBOX_PROVIDER=docker` with a
+  local supervisor and published `ghcr.io/elie222/rakazo/computer` image. No E2B account required.
+  Optional: set `e2b`, `daytona`, or `box` plus the matching API key for remote computers.
+- **Docker** is the quick-start default for published images and for a source checkout / full local
+  Compose stack. Workspace bots share a persistent Team Computer by default; Private computers are
+  optional. Keep the supervisor private, as the included Compose files do.
+- **E2B** runs bot computers away from the Rakazo host and is a good choice for public or multi-user
+  production deployments. Rakazo checkpoints the portable workspace and browser-profile directory to
+  `DATA_DIR`; the E2B disk is a runtime cache, not the durable source of truth.
+- **Daytona** provides the same remote-computer contract through Daytona sandboxes. Configure
+  `DAYTONA_API_KEY` and optionally `DAYTONA_API_URL` / `DAYTONA_TARGET`.
+- **Box by ASCII** provides a managed Linux desktop through `BOX_API_KEY` and optionally
+  `BOX_API_URL`. Rakazo always creates or resumes boxes with `noEnv: true`, keeps the portable
+  workspace under `/home/user/rakazo-home`, and refreshes a two-hour TTL. A Box currently exposes one
+  shared desktop, so concurrent Team bots can still use shell and files but only one can use
+  graphical tools at a time.
+- **Desktop provider** / **This Mac** runs commands on the API/worker host. Docker stays the default.
+  The Electron app asks once; if you choose This Mac, bots can use working directories under your home
+  folder. Do not enable it on a public or shared service. macOS does not show its own permission
+  dialog for this.
 - **Fake** is only an emulator for verification.
-- **None** boots the product without a computer host (used by the published-images path until you add a remote provider key).
+- **None** boots the product without a computer host (fallback when Docker/supervisor is not
+  configured, or when a remote provider is selected without its API key).
 
 ## Backup
 
@@ -286,12 +308,14 @@ this repository that is:
 
 | Image | Contents |
 | --- | --- |
-| `ghcr.io/elie222/rakazo/app` | api, worker, and web — one image, three commands |
+| `ghcr.io/elie222/rakazo/app` | api, worker, web, and sandbox supervisor — one image, multiple commands |
+| `ghcr.io/elie222/rakazo/computer` | Linux desktop used as each bot computer |
 | `ghcr.io/elie222/rakazo/updater` | the updater sidecar, plus the Docker CLI |
 
-`infra/compose/docker-compose.images.yml` is the no-checkout path for those app tags plus Postgres.
-Production Compose (`docker-compose.prod.yml`) can also pull the same tags once
-`RAKAZO_IMAGE_TAG` is set to a published value.
+`infra/compose/docker-compose.images.yml` is the no-checkout path for those app and computer tags
+plus Postgres. The supervisor runs from the app image on the internal network only (not a separate
+published supervisor image, and no host port). Production Compose (`docker-compose.prod.yml`) can
+also pull the same app tags once `RAKAZO_IMAGE_TAG` is set to a published value.
 
 If you deploy from your own fork, set `RAKAZO_IMAGE` and `RAKAZO_UPDATER_IMAGE` to your namespace —
 your CI cannot publish into someone else's.

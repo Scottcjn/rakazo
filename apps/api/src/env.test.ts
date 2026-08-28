@@ -111,7 +111,20 @@ describe("loadEnv", () => {
     expect(env.apiHost).toBe("0.0.0.0");
   });
 
-  it("requires a dedicated supervisor token for the Docker provider", () => {
+  it("falls back to none in production when Docker has no supervisor token", () => {
+    const env = loadEnv({
+      DATABASE_URL: base.DATABASE_URL,
+      NODE_ENV: "production",
+      BETTER_AUTH_SECRET: "prod-auth-secret-with-enough-length",
+      ENCRYPTION_KEY: "prod-encryption-key-with-enough-length",
+      SCREEN_PROXY_SECRET: "prod-screen-proxy-secret-with-enough-length",
+      SANDBOX_PROVIDER: "docker",
+    });
+    expect(env.sandboxProvider).toBe("none");
+    expect(env.sandboxSupervisorToken).toBeUndefined();
+  });
+
+  it("requires a dedicated supervisor token when Docker stays selected", () => {
     expect(() =>
       loadEnv({
         DATABASE_URL: base.DATABASE_URL,
@@ -120,6 +133,7 @@ describe("loadEnv", () => {
         ENCRYPTION_KEY: "prod-encryption-key-with-enough-length",
         SCREEN_PROXY_SECRET: "prod-screen-proxy-secret-with-enough-length",
         SANDBOX_PROVIDER: "docker",
+        SANDBOX_SUPERVISOR_TOKEN: "too-short",
       }),
     ).toThrow(/SANDBOX_SUPERVISOR_TOKEN/);
   });
