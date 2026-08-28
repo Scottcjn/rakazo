@@ -167,10 +167,10 @@ const structuredData = {
         <div class="selfhost-install">
           <h3>{copy.selfHost.installTitle}</h3>
           <p>{copy.selfHost.installHint}</p>
-          <pre class="selfhost-install__code"><code>{`mkdir rakazo && cd rakazo
-curl -fsSO https://raw.githubusercontent.com/elie222/rakazo/main/infra/compose/docker-compose.images.yml
-curl -fsSO https://raw.githubusercontent.com/elie222/rakazo/main/infra/compose/.env.images.example
-cp .env.images.example .env
+          <pre class="selfhost-install__code"><code>{`mkdir rakazo && cd rakazo &&
+curl -fsSO https://raw.githubusercontent.com/elie222/rakazo/main/infra/compose/docker-compose.images.yml &&
+curl -fsSO https://raw.githubusercontent.com/elie222/rakazo/main/infra/compose/.env.images.example &&
+cp .env.images.example .env &&
 POSTGRES_PASSWORD=$(openssl rand -hex 16) &&
 BETTER_AUTH_SECRET=$(openssl rand -hex 32) &&
 ENCRYPTION_KEY=$(openssl rand -hex 32) &&
@@ -184,6 +184,7 @@ sed -i.bak \\
   -e "s/^SCREEN_PROXY_SECRET=$/SCREEN_PROXY_SECRET=\${SCREEN_PROXY_SECRET}/" \\
   -e "s/^SANDBOX_SUPERVISOR_TOKEN=$/SANDBOX_SUPERVISOR_TOKEN=\${SANDBOX_SUPERVISOR_TOKEN}/" \\
   .env && rm -f .env.bak &&
+docker compose --env-file .env -f docker-compose.images.yml pull &&
 docker compose --env-file .env -f docker-compose.images.yml up -d`}</code></pre>
           <p class="selfhost-install__note">{copy.selfHost.computersNote}</p>
           <div class="selfhost-install__actions">

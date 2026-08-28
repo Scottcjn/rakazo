@@ -44,10 +44,10 @@ https://github.com/user-attachments/assets/dccdeddb-2134-4a56-8eed-b2e591736b1c
 You need Docker Engine and the Compose plugin. No clone or Node install.
 
 ```bash
-mkdir rakazo && cd rakazo
-curl -fsSO https://raw.githubusercontent.com/elie222/rakazo/main/infra/compose/docker-compose.images.yml
-curl -fsSO https://raw.githubusercontent.com/elie222/rakazo/main/infra/compose/.env.images.example
-cp .env.images.example .env
+mkdir rakazo && cd rakazo &&
+curl -fsSO https://raw.githubusercontent.com/elie222/rakazo/main/infra/compose/docker-compose.images.yml &&
+curl -fsSO https://raw.githubusercontent.com/elie222/rakazo/main/infra/compose/.env.images.example &&
+cp .env.images.example .env &&
 POSTGRES_PASSWORD=$(openssl rand -hex 16) &&
 BETTER_AUTH_SECRET=$(openssl rand -hex 32) &&
 ENCRYPTION_KEY=$(openssl rand -hex 32) &&
@@ -61,6 +61,7 @@ sed -i.bak \
   -e "s/^SCREEN_PROXY_SECRET=$/SCREEN_PROXY_SECRET=${SCREEN_PROXY_SECRET}/" \
   -e "s/^SANDBOX_SUPERVISOR_TOKEN=$/SANDBOX_SUPERVISOR_TOKEN=${SANDBOX_SUPERVISOR_TOKEN}/" \
   .env && rm -f .env.bak &&
+docker compose --env-file .env -f docker-compose.images.yml pull &&
 docker compose --env-file .env -f docker-compose.images.yml up -d
 ```
 

@@ -44,9 +44,11 @@ Signup and local Docker computers work without an E2B account. Optional remote p
 
 Optional: set `OPENROUTER_API_KEY` or connect a model in the UI after signup.
 
-The example defaults to `edge` (main builds, `linux/amd64` only). On arm64 hosts, pin
-`RAKAZO_IMAGE_TAG` to a published multi-arch release tag when one exists (see
-[Published images and tags](#published-images-and-tags)). Do not assume `latest` is published.
+The example defaults to `edge` (main builds, `linux/amd64` only). On arm64 hosts, set both
+`RAKAZO_IMAGE_TAG` and `RAKAZO_COMPUTER_IMAGE_TAG` to the same published multi-arch release tag
+when one exists (see [Published images and tags](#published-images-and-tags)). Changing only
+`RAKAZO_IMAGE_TAG` leaves the computer service on amd64-only `edge`. Do not assume `latest` is
+published.
 
 ```bash
 docker compose --env-file .env -f docker-compose.images.yml pull
@@ -336,9 +338,11 @@ your CI cannot publish into someone else's.
 | `edge` | pushes to main | yes, to the newest main build |
 
 `edge` from everyday main merges is `linux/amd64` only. Release tags (`v*`) and manual
-`workflow_dispatch` publishes are multi-arch (`amd64` + `arm64`). On arm64 hosts, pin a published
-release tag rather than `edge`. Until a stable `vX.Y.Z` has been published, GHCR may only have
-`edge` and `sha-*` tags; do not pin `latest` unless that tag exists in the registry.
+`workflow_dispatch` publishes are multi-arch (`amd64` + `arm64`). On arm64 hosts, set both
+`RAKAZO_IMAGE_TAG` and `RAKAZO_COMPUTER_IMAGE_TAG` to the same published release tag rather than
+`edge`. Changing only `RAKAZO_IMAGE_TAG` leaves the computer service on amd64-only `edge`. Until a
+stable `vX.Y.Z` has been published, GHCR may only have `edge` and `sha-*` tags; do not pin
+`latest` unless that tag exists in the registry.
 
 The updater resolves the newest stable `vX.Y.Z` source tag but deploys its `sha-<full-commit>` image,
 not `latest` or a moving minor tag. A registry tag is not an OCI digest and GHCR package writers can
