@@ -18,13 +18,15 @@ curl -fsSO https://raw.githubusercontent.com/elie222/rakazo/main/infra/compose/.
 cp .env.images.example .env
 ```
 
-Generate secrets and write them into `.env`:
+Generate secrets and write them into `.env` (Linux; after `cp .env.images.example .env`):
 
 ```bash
-POSTGRES_PASSWORD=$(openssl rand -hex 16)
-BETTER_AUTH_SECRET=$(openssl rand -hex 32)
-ENCRYPTION_KEY=$(openssl rand -hex 32)
-SCREEN_PROXY_SECRET=$(openssl rand -hex 32)
+sed -i \
+  -e "s/^POSTGRES_PASSWORD=$/POSTGRES_PASSWORD=$(openssl rand -hex 16)/" \
+  -e "s/^BETTER_AUTH_SECRET=$/BETTER_AUTH_SECRET=$(openssl rand -hex 32)/" \
+  -e "s/^ENCRYPTION_KEY=$/ENCRYPTION_KEY=$(openssl rand -hex 32)/" \
+  -e "s/^SCREEN_PROXY_SECRET=$/SCREEN_PROXY_SECRET=$(openssl rand -hex 32)/" \
+  .env
 ```
 
 `SANDBOX_PROVIDER` defaults to `none`, so the API and web UI start without an E2B (or other)

@@ -48,12 +48,13 @@ mkdir rakazo && cd rakazo
 curl -fsSO https://raw.githubusercontent.com/elie222/rakazo/main/infra/compose/docker-compose.images.yml
 curl -fsSO https://raw.githubusercontent.com/elie222/rakazo/main/infra/compose/.env.images.example
 cp .env.images.example .env
-```
-
-Set `POSTGRES_PASSWORD`, `BETTER_AUTH_SECRET`, `ENCRYPTION_KEY`, and `SCREEN_PROXY_SECRET`
-(see openssl notes in `.env.images.example`). Then:
-
-```bash
+# Write secrets into .env (Linux):
+sed -i \
+  -e "s/^POSTGRES_PASSWORD=$/POSTGRES_PASSWORD=$(openssl rand -hex 16)/" \
+  -e "s/^BETTER_AUTH_SECRET=$/BETTER_AUTH_SECRET=$(openssl rand -hex 32)/" \
+  -e "s/^ENCRYPTION_KEY=$/ENCRYPTION_KEY=$(openssl rand -hex 32)/" \
+  -e "s/^SCREEN_PROXY_SECRET=$/SCREEN_PROXY_SECRET=$(openssl rand -hex 32)/" \
+  .env
 docker compose --env-file .env -f docker-compose.images.yml up -d
 ```
 
