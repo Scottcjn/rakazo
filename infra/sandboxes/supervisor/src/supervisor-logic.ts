@@ -391,23 +391,40 @@ export function parseObservation(output: string) {
 }
 
 /**
+ * True when `buffer` is a complete Docker multiplexed stream: every frame has
+ * type 0/1/2, its payload fits in the remaining bytes, and parsing ends exactly
+ * at the buffer length. Otherwise the buffer is treated as raw (TTY) stdout.
+ */
+function isCompleteDockerMultiplexedStream(buffer: Buffer): boolean {
+  let offset = 0;
+  while (offset < buffer.length) {
+    if (offset + 8 > buffer.length) return false;
+    const type = buffer[offset];
+    if (type !== 0 && type !== 1 && type !== 2) return false;
+    const size = buffer.readUInt32BE(offset + 4);
+    if (offset + 8 + size > buffer.length) return false;
+    offset += 8 + size;
+  }
+  return offset === buffer.length;
+}
+
+/**
  * Split a Docker exec stream into stdout and stderr. Without a TTY the stream is
  * multiplexed: each frame is an 8-byte header (type byte, 3 reserved bytes, big-endian
  * length) followed by the payload, and type 2 is stderr. A raw (TTY) stream has no
- * headers and is all stdout.
+ * headers and is all stdout. Only demux when the buffer validates as a complete
+ * multiplexed sequence; otherwise return the whole buffer as stdout.
  */
 export function demuxDockerStream(buffer: Buffer): { stdout: string; stderr: string } {
-  if (buffer.length < 8 || (buffer[0] ?? 99) > 2) {
+  if (!isCompleteDockerMultiplexedStream(buffer)) {
     return { stdout: buffer.toString("utf8"), stderr: "" };
   }
   const stdout: Buffer[] = [];
   const stderr: Buffer[] = [];
   let offset = 0;
-  while (offset + 8 <= buffer.length) {
+  while (offset < buffer.length) {
     const size = buffer.readUInt32BE(offset + 4);
-    // A frame that claims more bytes than remain means the stream was cut
-    // mid-frame; keep what actually arrived rather than skipping past the end.
-    const payload = buffer.subarray(offset + 8, Math.min(offset + 8 + size, buffer.length));
+    const payload = buffer.subarray(offset + 8, offset + 8 + size);
     (buffer[offset] === 2 ? stderr : stdout).push(payload);
     offset += 8 + size;
   }
