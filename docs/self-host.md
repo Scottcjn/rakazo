@@ -21,12 +21,12 @@ cp .env.images.example .env
 Generate secrets and write them into `.env` (after `cp .env.images.example .env`):
 
 ```bash
-POSTGRES_PASSWORD=$(openssl rand -hex 16)
-BETTER_AUTH_SECRET=$(openssl rand -hex 32)
-ENCRYPTION_KEY=$(openssl rand -hex 32)
-SCREEN_PROXY_SECRET=$(openssl rand -hex 32)
-SANDBOX_SUPERVISOR_TOKEN=$(openssl rand -hex 32)
-: "${POSTGRES_PASSWORD:?}" "${BETTER_AUTH_SECRET:?}" "${ENCRYPTION_KEY:?}" "${SCREEN_PROXY_SECRET:?}" "${SANDBOX_SUPERVISOR_TOKEN:?}"
+POSTGRES_PASSWORD=$(openssl rand -hex 16) &&
+BETTER_AUTH_SECRET=$(openssl rand -hex 32) &&
+ENCRYPTION_KEY=$(openssl rand -hex 32) &&
+SCREEN_PROXY_SECRET=$(openssl rand -hex 32) &&
+SANDBOX_SUPERVISOR_TOKEN=$(openssl rand -hex 32) &&
+: "${POSTGRES_PASSWORD:?}" "${BETTER_AUTH_SECRET:?}" "${ENCRYPTION_KEY:?}" "${SCREEN_PROXY_SECRET:?}" "${SANDBOX_SUPERVISOR_TOKEN:?}" &&
 sed -i.bak \
   -e "s/^POSTGRES_PASSWORD=$/POSTGRES_PASSWORD=${POSTGRES_PASSWORD}/" \
   -e "s/^BETTER_AUTH_SECRET=$/BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}/" \

@@ -699,7 +699,7 @@ msgstr "कंप्यूटर निष्क्रिय है"
 
 #: src/pages/Shell.tsx:5474
 msgid "Computer is asleep. Take control to wake it."
-msgstr ""
+msgstr "कंप्यूटर सो रहा है। जगाने के लिए नियंत्रण लें।"
 
 #: src/pages/Shell.tsx:5476
 msgid "Computer is stopped"
@@ -707,11 +707,11 @@ msgstr "कंप्यूटर रुका हुआ है"
 
 #: src/pages/AccountSettingsOverlay.tsx:204
 msgid "Computers"
-msgstr ""
+msgstr "कंप्यूटर"
 
 #: src/components/ComputersUnavailableHint.tsx:7
-msgid "Computers are off. Set SANDBOX_PROVIDER=docker and SANDBOX_SUPERVISOR_TOKEN in .env, or add an E2B, Daytona, or Box API key. Recreate the stack after changing .env."
-msgstr ""
+msgid "Computers are off. Set SANDBOX_PROVIDER=docker with SANDBOX_SUPERVISOR_TOKEN, or set SANDBOX_PROVIDER to e2b, daytona, or box with its API key. Recreate the stack after changing .env."
+msgstr "कंप्यूटर बंद हैं। SANDBOX_PROVIDER=docker और SANDBOX_SUPERVISOR_TOKEN सेट करें, या SANDBOX_PROVIDER को e2b, daytona, या box पर सेट कर उसका API key दें। .env बदलने के बाद स्टैक फिर बनाएँ।"
 
 #: src/pages/ModelSettingsOverlay.tsx:333
 msgid "Configured by deployment"

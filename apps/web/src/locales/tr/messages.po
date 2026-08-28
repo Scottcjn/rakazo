@@ -699,7 +699,7 @@ msgstr "Bilgisayar uykuda"
 
 #: src/pages/Shell.tsx:5474
 msgid "Computer is asleep. Take control to wake it."
-msgstr ""
+msgstr "Bilgisayar uykuda. Uyandırmak için kontrolü alın."
 
 #: src/pages/Shell.tsx:5476
 msgid "Computer is stopped"
@@ -707,11 +707,11 @@ msgstr "Bilgisayar durduruldu"
 
 #: src/pages/AccountSettingsOverlay.tsx:204
 msgid "Computers"
-msgstr ""
+msgstr "Bilgisayarlar"
 
 #: src/components/ComputersUnavailableHint.tsx:7
-msgid "Computers are off. Set SANDBOX_PROVIDER=docker and SANDBOX_SUPERVISOR_TOKEN in .env, or add an E2B, Daytona, or Box API key. Recreate the stack after changing .env."
-msgstr ""
+msgid "Computers are off. Set SANDBOX_PROVIDER=docker with SANDBOX_SUPERVISOR_TOKEN, or set SANDBOX_PROVIDER to e2b, daytona, or box with its API key. Recreate the stack after changing .env."
+msgstr "Bilgisayarlar kapalı. SANDBOX_PROVIDER=docker ve SANDBOX_SUPERVISOR_TOKEN ayarlayın; ya da SANDBOX_PROVIDER değerini e2b, daytona veya box yapıp API anahtarını ekleyin. .env değişince stacki yeniden oluşturun."
 
 #: src/pages/ModelSettingsOverlay.tsx:333
 msgid "Configured by deployment"

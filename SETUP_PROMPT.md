@@ -48,7 +48,7 @@ Setup:
 
 Verification:
 
-- Request `http://127.0.0.1:3100/health`. Require `ok: true`. Expect `sandbox: "docker"` unless a remote provider was configured (or Docker fell back to `none` because the supervisor token was missing).
+- Request `http://127.0.0.1:3100/health`. Require `ok: true` and `sandbox: "docker"` (or the remote provider you configured). A missing `SANDBOX_SUPERVISOR_TOKEN` is a setup failure: Compose will not start the supervisor; restore the token and recreate the stack. Do not treat `sandbox: "none"` as success for this path.
 - Open `http://127.0.0.1:5173`, create a local test account with fake data, and complete first-run onboarding.
 - If a model is connected, send a harmless test message. Open the Agent computer pane and confirm the Docker computer reaches `running` and renders its desktop.
 

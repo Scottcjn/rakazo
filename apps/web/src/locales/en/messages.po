@@ -710,8 +710,8 @@ msgid "Computers"
 msgstr "Computers"
 
 #: src/components/ComputersUnavailableHint.tsx:7
-msgid "Computers are off. Set SANDBOX_PROVIDER=docker and SANDBOX_SUPERVISOR_TOKEN in .env, or add an E2B, Daytona, or Box API key. Recreate the stack after changing .env."
-msgstr "Computers are off. Set SANDBOX_PROVIDER=docker and SANDBOX_SUPERVISOR_TOKEN in .env, or add an E2B, Daytona, or Box API key. Recreate the stack after changing .env."
+msgid "Computers are off. Set SANDBOX_PROVIDER=docker with SANDBOX_SUPERVISOR_TOKEN, or set SANDBOX_PROVIDER to e2b, daytona, or box with its API key. Recreate the stack after changing .env."
+msgstr "Computers are off. Set SANDBOX_PROVIDER=docker with SANDBOX_SUPERVISOR_TOKEN, or set SANDBOX_PROVIDER to e2b, daytona, or box with its API key. Recreate the stack after changing .env."
 
 #: src/pages/ModelSettingsOverlay.tsx:333
 msgid "Configured by deployment"
