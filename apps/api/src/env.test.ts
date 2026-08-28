@@ -27,6 +27,21 @@ describe("loadEnv", () => {
     expect(env.wakeupDriver).toBe("memory");
   });
 
+  it("falls back to none when a remote provider key is missing", () => {
+    expect(
+      loadEnv({
+        ...base,
+        SANDBOX_PROVIDER: "e2b",
+      }).sandboxProvider,
+    ).toBe("none");
+    expect(
+      loadEnv({
+        ...base,
+        SANDBOX_PROVIDER: "none",
+      }).sandboxProvider,
+    ).toBe("none");
+  });
+
   it("loads provider-specific Daytona configuration", () => {
     const env = loadEnv({
       ...base,

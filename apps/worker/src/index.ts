@@ -52,7 +52,7 @@ async function main() {
   const dataDir = process.env.DATA_DIR ?? "./data";
   // Same resolver the API uses, so both processes agree on provider, model and key.
   const { key: deploymentModelKey } = resolveDeploymentModel();
-  const sandbox = createRunSandbox(process.env.SANDBOX_PROVIDER ?? "docker", {
+  const sandbox = createRunSandbox(process.env.SANDBOX_PROVIDER?.trim() || "docker", {
     supervisorUrl: process.env.SANDBOX_SUPERVISOR_URL ?? "http://127.0.0.1:7091",
     e2bApiKey: process.env.E2B_API_KEY,
     daytonaApiKey: process.env.DAYTONA_API_KEY,

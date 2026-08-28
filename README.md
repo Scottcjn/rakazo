@@ -39,9 +39,36 @@ https://github.com/user-attachments/assets/dccdeddb-2134-4a56-8eed-b2e591736b1c
 - Docker, E2B, Daytona, and Box
 - Composio, Pipedream Connect, MCP, and OpenAPI integrations
 
-## Quick start
+## Quick start (published images)
 
-You need Node.js 22+, pnpm 9, and Docker Desktop.
+You need Docker Engine and the Compose plugin. No clone or Node install.
+
+```bash
+mkdir rakazo && cd rakazo
+curl -fsSO https://raw.githubusercontent.com/elie222/rakazo/main/infra/compose/docker-compose.images.yml
+curl -fsSO https://raw.githubusercontent.com/elie222/rakazo/main/infra/compose/.env.images.example
+cp .env.images.example .env
+```
+
+Set `POSTGRES_PASSWORD`, `BETTER_AUTH_SECRET`, `ENCRYPTION_KEY`, and `SCREEN_PROXY_SECRET`
+(see openssl notes in `.env.images.example`). Then:
+
+```bash
+docker compose --env-file .env -f docker-compose.images.yml up -d
+```
+
+Open [http://127.0.0.1:5173](http://127.0.0.1:5173), create an account, and connect a model.
+Computers stay unavailable until you set `SANDBOX_PROVIDER` to `e2b`, `daytona`, or `box` with
+the matching API key.
+
+Default image tag is `edge` (main builds, `linux/amd64`). Details and tags:
+[self-hosting guide](./docs/self-host.md#published-images-no-checkout).
+
+For an agent-assisted install, use [SETUP_PROMPT.md](./SETUP_PROMPT.md).
+
+## Local development (source checkout)
+
+You need Node.js 22+, pnpm 9, and Docker.
 
 ```bash
 git clone https://github.com/elie222/rakazo.git
@@ -75,25 +102,8 @@ pnpm dev
 Open [http://127.0.0.1:5173](http://127.0.0.1:5173), create an account, connect a model, and create
 your first bot.
 
-For an agent-assisted installation, use [SETUP_PROMPT.md](./SETUP_PROMPT.md). For deployment,
-provider selection, backups, and upgrades, see the [self-hosting guide](./docs/self-host.md).
-
-### Self-host from published images
-
-No clone required. Create a folder, drop the compose file and env example, set secrets, then pull
-and start:
-
-```bash
-mkdir rakazo && cd rakazo
-curl -fsSO https://raw.githubusercontent.com/elie222/rakazo/main/infra/compose/docker-compose.images.yml
-curl -fsSO https://raw.githubusercontent.com/elie222/rakazo/main/infra/compose/.env.images.example
-cp .env.images.example .env
-# set POSTGRES_PASSWORD, BETTER_AUTH_SECRET, ENCRYPTION_KEY, SCREEN_PROXY_SECRET, E2B_API_KEY
-# on arm64, pin RAKAZO_IMAGE_TAG to a release (latest / vX.Y.Z); edge is amd64-only
-docker compose --env-file .env -f docker-compose.images.yml up -d
-```
-
-Details and tag choices: [self-hosting guide](./docs/self-host.md#published-images-no-checkout).
+For deployment, provider selection, backups, and upgrades, see the
+[self-hosting guide](./docs/self-host.md).
 
 ## Desktop and mobile
 

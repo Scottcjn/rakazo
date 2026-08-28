@@ -52,7 +52,7 @@ export interface AppEnv {
 
 export function loadEnv(source: NodeJS.ProcessEnv = process.env): AppEnv {
   const authSecret = resolveAuthSecret(source);
-  const sandboxProvider = source.SANDBOX_PROVIDER ?? "docker";
+  const sandboxProvider = resolveSandboxProvider(source);
   const deploymentModel = resolveDeploymentModel(source);
   const updaterUrl = optional(source.RAKAZO_UPDATER_URL);
   const updaterToken = optional(source.RAKAZO_UPDATER_TOKEN);
@@ -113,4 +113,14 @@ function required(source: NodeJS.ProcessEnv, key: string): string {
 function optional(value: string | undefined): string | undefined {
   const trimmed = value?.trim();
   return trimmed || undefined;
+}
+
+/** Empty or remote provider without a key becomes none so the API can boot for signup. */
+export function resolveSandboxProvider(source: NodeJS.ProcessEnv): string {
+  const requested = source.SANDBOX_PROVIDER?.trim() || "docker";
+  if (requested === "none") return "none";
+  if (requested === "e2b" && !optional(source.E2B_API_KEY)) return "none";
+  if (requested === "daytona" && !optional(source.DAYTONA_API_KEY)) return "none";
+  if (requested === "box" && !optional(source.BOX_API_KEY)) return "none";
+  return requested;
 }

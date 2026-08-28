@@ -9,6 +9,7 @@ Same as the README quick start: `.env` from `.env.example`, Postgres via Compose
 ## Published images (no checkout)
 
 Pull Postgres and `ghcr.io/elie222/rakazo/app` into any empty folder. No clone or image build.
+Requires Docker Engine and the Compose plugin.
 
 ```bash
 mkdir rakazo && cd rakazo
@@ -17,11 +18,25 @@ curl -fsSO https://raw.githubusercontent.com/elie222/rakazo/main/infra/compose/.
 cp .env.images.example .env
 ```
 
-Set `POSTGRES_PASSWORD`, `BETTER_AUTH_SECRET`, `ENCRYPTION_KEY`, and `SCREEN_PROXY_SECRET`. Add
-`E2B_API_KEY` (default computer provider) and an optional model key such as `OPENROUTER_API_KEY`.
-The example defaults to `edge` (main builds, `linux/amd64` only). On arm64 hosts, or when you want
-a fixed version, pin `RAKAZO_IMAGE_TAG` to a release (`latest` or `vX.Y.Z`; those publish
-amd64+arm64). See [Published images and tags](#published-images-and-tags).
+Generate secrets and write them into `.env`:
+
+```bash
+POSTGRES_PASSWORD=$(openssl rand -hex 16)
+BETTER_AUTH_SECRET=$(openssl rand -hex 32)
+ENCRYPTION_KEY=$(openssl rand -hex 32)
+SCREEN_PROXY_SECRET=$(openssl rand -hex 32)
+```
+
+`SANDBOX_PROVIDER` defaults to `none`, so the API and web UI start without an E2B (or other)
+account. Signup works; computers stay unavailable until you set `SANDBOX_PROVIDER` to `e2b`,
+`daytona`, or `box` and add the matching API key. This Compose file has no Docker supervisor, so
+`SANDBOX_PROVIDER=docker` is not supported here (use the source Compose stack below for that).
+
+Optional: set `OPENROUTER_API_KEY` or connect a model in the UI after signup.
+
+The example defaults to `edge` (main builds, `linux/amd64` only). On arm64 hosts, pin
+`RAKAZO_IMAGE_TAG` to a published multi-arch release tag when one exists (see
+[Published images and tags](#published-images-and-tags)). Do not assume `latest` is published.
 
 ```bash
 docker compose --env-file .env -f docker-compose.images.yml pull
@@ -66,7 +81,7 @@ Optional:
 ```env
 SIGNUPS_ENABLED=true
 SIGNUP_ALLOWLIST=you@example.com,@company.com
-SANDBOX_PROVIDER=docker   # or e2b, daytona, box. Keep fake only for pnpm test.
+SANDBOX_PROVIDER=docker   # or none, e2b, daytona, box. Keep fake only for pnpm test.
 AGENT_RUNTIME=pi          # Keep scripted only for pnpm test.
 WAKEUP_DRIVER=graphile
 SANDBOX_IDLE_MS=600000    # pause the bot computer after 10 minutes idle
@@ -107,12 +122,14 @@ Do not commit `.env`. Never put `COMPOSIO_API_KEY`, OpenRouter keys, or provider
 
 The Electron desktop app is a client of the same API. Docker and E2B still apply. On first launch, Electron asks the deployment owner whether bots should keep using Docker or run on this Mac as you. `SANDBOX_PROVIDER=desktop` is a separate, explicit provider that always runs commands on the service host.
 
-- **Docker** is the default for local use and the quickest self-hosted setup. Workspace bots share a persistent Team Computer by default; Private computers are optional. Keep the supervisor private, as the included Compose file does.
+- **Published images** (`docker-compose.images.yml`) default to `SANDBOX_PROVIDER=none`. The UI boots without a computer host. Set `e2b`, `daytona`, or `box` plus the matching API key when you want computers. Docker is not available on that path (no supervisor in the images Compose file).
+- **Docker** is the default for a source checkout / full local Compose stack and the quickest self-hosted setup with computers on the same machine. Workspace bots share a persistent Team Computer by default; Private computers are optional. Keep the supervisor private, as the included Compose file does.
 - **E2B** runs bot computers away from the Rakazo host and is the recommended choice for public or multi-user production deployments. Rakazo checkpoints the portable workspace and browser-profile directory to `DATA_DIR`; the E2B disk is a runtime cache, not the durable source of truth.
 - **Daytona** provides the same remote-computer contract through Daytona sandboxes. Configure `DAYTONA_API_KEY` and optionally `DAYTONA_API_URL` / `DAYTONA_TARGET`.
 - **Box by ASCII** provides a managed Linux desktop through `BOX_API_KEY` and optionally `BOX_API_URL`. Rakazo always creates or resumes boxes with `noEnv: true`, keeps the portable workspace under `/home/user/rakazo-home`, and refreshes a two-hour TTL. A Box currently exposes one shared desktop, so concurrent Team bots can still use shell and files but only one can use graphical tools at a time.
-- **Desktop provider** / **This Mac** runs commands on the API/worker host. Docker stays the default. The Electron app asks once; if you choose This Mac, bots can use working directories under your home folder. Do not enable it on a public or shared service. macOS does not show its own permission dialog for this.
+- **Desktop provider** / **This Mac** runs commands on the API/worker host. Docker stays the default for source checkouts. The Electron app asks once; if you choose This Mac, bots can use working directories under your home folder. Do not enable it on a public or shared service. macOS does not show its own permission dialog for this.
 - **Fake** is only an emulator for verification.
+- **None** boots the product without a computer host (used by the published-images path until you add a remote provider key).
 
 ## Backup
 
@@ -287,8 +304,9 @@ your CI cannot publish into someone else's.
 | `edge` | pushes to main | yes, to the newest main build |
 
 `edge` from everyday main merges is `linux/amd64` only. Release tags (`v*`) and manual
-`workflow_dispatch` publishes are multi-arch (`amd64` + `arm64`). On arm64 hosts, pin a release
-tag rather than `edge`.
+`workflow_dispatch` publishes are multi-arch (`amd64` + `arm64`). On arm64 hosts, pin a published
+release tag rather than `edge`. Until a stable `vX.Y.Z` has been published, GHCR may only have
+`edge` and `sha-*` tags; do not pin `latest` unless that tag exists in the registry.
 
 The updater resolves the newest stable `vX.Y.Z` source tag but deploys its `sha-<full-commit>` image,
 not `latest` or a moving minor tag. A registry tag is not an OCI digest and GHCR package writers can

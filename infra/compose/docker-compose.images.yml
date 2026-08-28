@@ -2,9 +2,11 @@
 # Drop this file and .env into any directory, then:
 #   docker compose --env-file .env -f docker-compose.images.yml up -d
 #
-# Tag contract matches docs/self-host.md (edge from main; latest / vX.Y.Z from stable releases).
+# Tag contract matches docs/self-host.md (edge from main; release tags when published).
 # Default is edge because that tag is published on every main build (linux/amd64 only).
-# Pin a release tag (latest or vX.Y.Z) for multi-arch amd64+arm64 and for a fixed version.
+# Pin a published release tag (vX.Y.Z or latest, when present) for multi-arch and fixed versions.
+# Default SANDBOX_PROVIDER=none boots the UI without a remote computer key.
+# Set e2b / daytona / box plus the matching API key when you want computers.
 name: rakazo
 
 services:
@@ -50,7 +52,7 @@ services:
       API_HOST: "0.0.0.0"
       DATABASE_URL: postgres://${POSTGRES_USER:-rakazo}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-rakazo}
       DATA_DIR: /data
-      SANDBOX_PROVIDER: ${SANDBOX_PROVIDER:-e2b}
+      SANDBOX_PROVIDER: ${SANDBOX_PROVIDER:-none}
       WAKEUP_DRIVER: graphile
       AGENT_RUNTIME: pi
     ports:
@@ -91,7 +93,7 @@ services:
       NODE_ENV: production
       DATABASE_URL: postgres://${POSTGRES_USER:-rakazo}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-rakazo}
       DATA_DIR: /data
-      SANDBOX_PROVIDER: ${SANDBOX_PROVIDER:-e2b}
+      SANDBOX_PROVIDER: ${SANDBOX_PROVIDER:-none}
       SCREEN_PROXY_SECRET: ""
       WAKEUP_DRIVER: graphile
       AGENT_RUNTIME: pi
