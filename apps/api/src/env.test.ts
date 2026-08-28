@@ -40,6 +40,12 @@ describe("loadEnv", () => {
         SANDBOX_PROVIDER: "none",
       }).sandboxProvider,
     ).toBe("none");
+    expect(
+      loadEnv({
+        ...base,
+        SANDBOX_PROVIDER: "",
+      }).sandboxProvider,
+    ).toBe("none");
   });
 
   it("loads provider-specific Daytona configuration", () => {

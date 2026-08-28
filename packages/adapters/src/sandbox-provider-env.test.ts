@@ -8,6 +8,7 @@ describe("resolveSandboxProvider", () => {
 
   it("keeps explicit none", () => {
     expect(resolveSandboxProvider({ SANDBOX_PROVIDER: "none" })).toBe("none");
+    expect(resolveSandboxProvider({ SANDBOX_PROVIDER: "" })).toBe("none");
   });
 
   it("falls back to none when a remote provider key is missing", () => {
