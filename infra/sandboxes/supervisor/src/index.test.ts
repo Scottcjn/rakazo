@@ -530,4 +530,13 @@ describe("docker exec stream demux", () => {
       stderr: "",
     });
   });
+
+  it("rejects frames with nonzero reserved header padding as raw stdout", () => {
+    // type 1, nonzero padding, size 0 — would look like an empty stdout frame without the check
+    const padded = Buffer.from([0x01, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00]);
+    expect(demuxDockerStream(padded)).toEqual({
+      stdout: padded.toString("utf8"),
+      stderr: "",
+    });
+  });
 });

@@ -401,6 +401,10 @@ function isCompleteDockerMultiplexedStream(buffer: Buffer): boolean {
     if (offset + 8 > buffer.length) return false;
     const type = buffer[offset];
     if (type !== 0 && type !== 1 && type !== 2) return false;
+    // Bytes 1–3 are reserved padding and must be zero in Docker's multiplex format.
+    if (buffer[offset + 1] !== 0 || buffer[offset + 2] !== 0 || buffer[offset + 3] !== 0) {
+      return false;
+    }
     const size = buffer.readUInt32BE(offset + 4);
     if (offset + 8 + size > buffer.length) return false;
     offset += 8 + size;
