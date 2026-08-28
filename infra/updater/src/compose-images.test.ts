@@ -61,7 +61,9 @@ describe("the images compose file", () => {
   it("defaults API and worker to Docker computers via the supervisor", () => {
     expect(compose.services.api?.environment?.SANDBOX_PROVIDER).toContain("docker");
     expect(compose.services.worker?.environment?.SANDBOX_PROVIDER).toContain("docker");
-    expect(compose.services.api?.environment?.SANDBOX_SUPERVISOR_URL).toBe("http://supervisor:7091");
+    expect(compose.services.api?.environment?.SANDBOX_SUPERVISOR_URL).toBe(
+      "http://supervisor:7091",
+    );
     expect(compose.services.worker?.environment?.SANDBOX_SUPERVISOR_URL).toBe(
       "http://supervisor:7091",
     );
